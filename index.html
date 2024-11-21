@@ -80,7 +80,7 @@
 
         function updateMilePace(kmMinutes, kmSeconds) {
             const kmPace = convertPace(Number(kmMinutes), Number(kmSeconds));
-            const milePace = kmPace / 1.60934;
+            const milePace = kmPace * 1.60934;
             const mileMinutes = Math.floor(milePace);
             const mileSeconds = Math.round((milePace - mileMinutes) * 60);
 
@@ -90,7 +90,7 @@
 
         function updateKmPace(mileMinutes, mileSeconds) {
             const milePace = convertPace(Number(mileMinutes), Number(mileSeconds));
-            const kmPace = milePace * 1.60934;
+            const kmPace = milePace / 1.60934;
             const kmMinutes = Math.floor(kmPace);
             const kmSeconds = Math.round((kmPace - kmMinutes) * 60);
 
