@@ -8,17 +8,17 @@
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.24/dist/full.min.css" rel="stylesheet" type="text/css" />
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
-    <div class="card w-[500px] bg-base-100 shadow-xl p-6">
-        <h2 class="text-2xl font-bold mb-4 text-center">Pace Converter</h2>
+    <div class="card w-[500px] bg-base-100 shadow-xl p-6 relative">
+        <h2 class="text-2xl font-bold mb-4 text-center">Running pace converter</h2>
         
         <div class="flex items-center gap-4 mb-4">
-            <div class="text-lg font-semibold">min/km</div>
-            <div class="flex items-center gap-2">
+            <div class="text-lg font-semibold w-20">min/km</div>
+            <div class="flex items-center gap-2 flex-grow">
                 <input 
                     type="number" 
                     id="kmMinutesInput"
                     placeholder="min" 
-                    class="input input-bordered w-20"
+                    class="input input-bordered flex-grow"
                     min="0"
                 />
                 <span>:</span>
@@ -26,7 +26,7 @@
                     type="number" 
                     id="kmSecondsInput"
                     placeholder="sec" 
-                    class="input input-bordered w-20"
+                    class="input input-bordered flex-grow"
                     min="0"
                     max="59"
                 />
@@ -34,13 +34,13 @@
         </div>
 
         <div class="flex items-center gap-4">
-            <div class="text-lg font-semibold">min/mi</div>
-            <div class="flex items-center gap-2">
+            <div class="text-lg font-semibold w-20">min/mi</div>
+            <div class="flex items-center gap-2 flex-grow">
                 <input 
                     type="number" 
                     id="mileMinutesInput"
                     placeholder="min" 
-                    class="input input-bordered w-20"
+                    class="input input-bordered flex-grow"
                     min="0"
                 />
                 <span>:</span>
@@ -48,49 +48,54 @@
                     type="number" 
                     id="mileSecondsInput"
                     placeholder="sec" 
-                    class="input input-bordered w-20"
+                    class="input input-bordered flex-grow"
                     min="0"
                     max="59"
                 />
             </div>
         </div>
+
+        <script>
+            const kmMinutesInput = document.getElementById('kmMinutesInput');
+            const kmSecondsInput = document.getElementById('kmSecondsInput');
+            const mileMinutesInput = document.getElementById('mileMinutesInput');
+            const mileSecondsInput = document.getElementById('mileSecondsInput');
+
+            function convertPace(minutes, seconds) {
+                return minutes + (seconds / 60);
+            }
+
+            function updateMilePace(kmMinutes, kmSeconds) {
+                const kmPace = convertPace(Number(kmMinutes), Number(kmSeconds));
+                const milePace = kmPace * 1.609344;
+                const mileMinutes = Math.floor(milePace);
+                const mileSeconds = Math.round((milePace - mileMinutes) * 60);
+
+                mileMinutesInput.value = mileMinutes;
+                mileSecondsInput.value = mileSeconds;
+            }
+
+            function updateKmPace(mileMinutes, mileSeconds) {
+                const milePace = convertPace(Number(mileMinutes), Number(mileSeconds));
+                const kmPace = milePace / 1.609344;
+                const kmMinutes = Math.floor(kmPace);
+                const kmSeconds = Math.round((kmPace - kmMinutes) * 60);
+
+                kmMinutesInput.value = kmMinutes;
+                kmSecondsInput.value = kmSeconds;
+            }
+
+            kmMinutesInput.addEventListener('input', () => updateMilePace(kmMinutesInput.value, kmSecondsInput.value || 0));
+            kmSecondsInput.addEventListener('input', () => updateMilePace(kmMinutesInput.value || 0, kmSecondsInput.value));
+            
+            mileMinutesInput.addEventListener('input', () => updateKmPace(mileMinutesInput.value, mileSecondsInput.value || 0));
+            mileSecondsInput.addEventListener('input', () => updateKmPace(mileMinutesInput.value || 0, mileSecondsInput.value));
+        </script>
     </div>
-
-    <script>
-        const kmMinutesInput = document.getElementById('kmMinutesInput');
-        const kmSecondsInput = document.getElementById('kmSecondsInput');
-        const mileMinutesInput = document.getElementById('mileMinutesInput');
-        const mileSecondsInput = document.getElementById('mileSecondsInput');
-
-        function convertPace(minutes, seconds) {
-            return minutes + (seconds / 60);
-        }
-
-        function updateMilePace(kmMinutes, kmSeconds) {
-            const kmPace = convertPace(Number(kmMinutes), Number(kmSeconds));
-            const milePace = kmPace * 1.60934;
-            const mileMinutes = Math.floor(milePace);
-            const mileSeconds = Math.round((milePace - mileMinutes) * 60);
-
-            mileMinutesInput.value = mileMinutes;
-            mileSecondsInput.value = mileSeconds;
-        }
-
-        function updateKmPace(mileMinutes, mileSeconds) {
-            const milePace = convertPace(Number(mileMinutes), Number(mileSeconds));
-            const kmPace = milePace / 1.60934;
-            const kmMinutes = Math.floor(kmPace);
-            const kmSeconds = Math.round((kmPace - kmMinutes) * 60);
-
-            kmMinutesInput.value = kmMinutes;
-            kmSecondsInput.value = kmSeconds;
-        }
-
-        kmMinutesInput.addEventListener('input', () => updateMilePace(kmMinutesInput.value, kmSecondsInput.value || 0));
-        kmSecondsInput.addEventListener('input', () => updateMilePace(kmMinutesInput.value || 0, kmSecondsInput.value));
-        
-        mileMinutesInput.addEventListener('input', () => updateKmPace(mileMinutesInput.value, mileSecondsInput.value || 0));
-        mileSecondsInput.addEventListener('input', () => updateKmPace(mileMinutesInput.value || 0, mileSecondsInput.value));
-    </script>
+    <a href="https://github.com/felixbouleau/runningconverter-com" target="_blank" class="absolute bottom-4 right-4 text-gray-500 hover:text-gray-700">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="gray">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+        </svg>
+    </a>
 </body>
 </html>
