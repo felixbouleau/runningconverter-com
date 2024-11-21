@@ -3,9 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pace Converter</title>
+    <title>Running pace converter</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.24/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <script>
+        const kmMinutesInput = document.getElementById('kmMinutesInput');
+        const kmSecondsInput = document.getElementById('kmSecondsInput');
+        const mileMinutesInput = document.getElementById('mileMinutesInput');
+        const mileSecondsInput = document.getElementById('mileSecondsInput');
+
+        function convertPace(minutes, seconds) {
+            return minutes + (seconds / 60);
+        }
+
+        function updateMilePace(kmMinutes, kmSeconds) {
+            const kmPace = convertPace(Number(kmMinutes), Number(kmSeconds));
+            const milePace = kmPace * 1.609344;
+            const mileMinutes = Math.floor(milePace);
+            const mileSeconds = Math.round((milePace - mileMinutes) * 60);
+
+            mileMinutesInput.value = mileMinutes;
+            mileSecondsInput.value = mileSeconds;
+        }
+
+        function updateKmPace(mileMinutes, mileSeconds) {
+            const milePace = convertPace(Number(mileMinutes), Number(mileSeconds));
+            const kmPace = milePace / 1.609344;
+            const kmMinutes = Math.floor(kmPace);
+            const kmSeconds = Math.round((kmPace - kmMinutes) * 60);
+
+            kmMinutesInput.value = kmMinutes;
+            kmSecondsInput.value = kmSeconds;
+        }
+
+        kmMinutesInput.addEventListener('input', () => updateMilePace(kmMinutesInput.value, kmSecondsInput.value || 0));
+        kmSecondsInput.addEventListener('input', () => updateMilePace(kmMinutesInput.value || 0, kmSecondsInput.value));
+        
+        mileMinutesInput.addEventListener('input', () => updateKmPace(mileMinutesInput.value, mileSecondsInput.value || 0));
+        mileSecondsInput.addEventListener('input', () => updateKmPace(mileMinutesInput.value || 0, mileSecondsInput.value));
+    </script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="card w-[500px] bg-base-100 shadow-xl p-6 relative">
@@ -20,6 +60,7 @@
                     placeholder="min" 
                     class="input input-bordered flex-grow"
                     min="0"
+                    max="59"
                 />
                 <span>:</span>
                 <input 
@@ -42,6 +83,7 @@
                     placeholder="min" 
                     class="input input-bordered flex-grow"
                     min="0"
+                    max="59"
                 />
                 <span>:</span>
                 <input 
@@ -55,42 +97,6 @@
             </div>
         </div>
 
-        <script>
-            const kmMinutesInput = document.getElementById('kmMinutesInput');
-            const kmSecondsInput = document.getElementById('kmSecondsInput');
-            const mileMinutesInput = document.getElementById('mileMinutesInput');
-            const mileSecondsInput = document.getElementById('mileSecondsInput');
-
-            function convertPace(minutes, seconds) {
-                return minutes + (seconds / 60);
-            }
-
-            function updateMilePace(kmMinutes, kmSeconds) {
-                const kmPace = convertPace(Number(kmMinutes), Number(kmSeconds));
-                const milePace = kmPace * 1.609344;
-                const mileMinutes = Math.floor(milePace);
-                const mileSeconds = Math.round((milePace - mileMinutes) * 60);
-
-                mileMinutesInput.value = mileMinutes;
-                mileSecondsInput.value = mileSeconds;
-            }
-
-            function updateKmPace(mileMinutes, mileSeconds) {
-                const milePace = convertPace(Number(mileMinutes), Number(mileSeconds));
-                const kmPace = milePace / 1.609344;
-                const kmMinutes = Math.floor(kmPace);
-                const kmSeconds = Math.round((kmPace - kmMinutes) * 60);
-
-                kmMinutesInput.value = kmMinutes;
-                kmSecondsInput.value = kmSeconds;
-            }
-
-            kmMinutesInput.addEventListener('input', () => updateMilePace(kmMinutesInput.value, kmSecondsInput.value || 0));
-            kmSecondsInput.addEventListener('input', () => updateMilePace(kmMinutesInput.value || 0, kmSecondsInput.value));
-            
-            mileMinutesInput.addEventListener('input', () => updateKmPace(mileMinutesInput.value, mileSecondsInput.value || 0));
-            mileSecondsInput.addEventListener('input', () => updateKmPace(mileMinutesInput.value || 0, mileSecondsInput.value));
-        </script>
     </div>
     <a href="https://github.com/felixbouleau/runningconverter-com" target="_blank" class="absolute bottom-4 right-4 text-gray-500 hover:text-gray-700">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="gray">
