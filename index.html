@@ -9,58 +9,46 @@
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="card w-[500px] bg-base-100 shadow-xl p-6">
-        <h2 class="text-2xl font-bold mb-4 text-center">Running pace conversion</h2>
+        <h2 class="text-2xl font-bold mb-4 text-center">Pace Converter</h2>
         
-        <div class="grid grid-cols-2 gap-4 mb-4">
-            <div class="form-control">
-                <label class="label">
-                    <span class="label-text">min/km (minutes)</span>
-                </label>
+        <div class="flex items-center gap-4 mb-4">
+            <div class="text-lg font-semibold">min/km</div>
+            <div class="flex items-center gap-2">
                 <input 
                     type="number" 
                     id="kmMinutesInput"
-                    placeholder="Minutes" 
-                    class="input input-bordered w-full"
+                    placeholder="min" 
+                    class="input input-bordered w-20"
                     min="0"
                 />
-            </div>
-            <div class="form-control">
-                <label class="label">
-                    <span class="label-text">min/km (seconds)</span>
-                </label>
+                <span>:</span>
                 <input 
                     type="number" 
                     id="kmSecondsInput"
-                    placeholder="Seconds" 
-                    class="input input-bordered w-full"
+                    placeholder="sec" 
+                    class="input input-bordered w-20"
                     min="0"
                     max="59"
                 />
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
-            <div class="form-control">
-                <label class="label">
-                    <span class="label-text">min/mi (minutes)</span>
-                </label>
+        <div class="flex items-center gap-4">
+            <div class="text-lg font-semibold">min/mi</div>
+            <div class="flex items-center gap-2">
                 <input 
                     type="number" 
                     id="mileMinutesInput"
-                    placeholder="Minutes" 
-                    class="input input-bordered w-full"
+                    placeholder="min" 
+                    class="input input-bordered w-20"
                     min="0"
                 />
-            </div>
-            <div class="form-control">
-                <label class="label">
-                    <span class="label-text">min/mi (seconds)</span>
-                </label>
+                <span>:</span>
                 <input 
                     type="number" 
                     id="mileSecondsInput"
-                    placeholder="Seconds" 
-                    class="input input-bordered w-full"
+                    placeholder="sec" 
+                    class="input input-bordered w-20"
                     min="0"
                     max="59"
                 />
@@ -98,11 +86,11 @@
             kmSecondsInput.value = kmSeconds;
         }
 
-        kmMinutesInput.addEventListener('input', () => updateMilePace(kmMinutesInput.value, kmSecondsInput.value));
-        kmSecondsInput.addEventListener('input', () => updateMilePace(kmMinutesInput.value, kmSecondsInput.value));
+        kmMinutesInput.addEventListener('input', () => updateMilePace(kmMinutesInput.value, kmSecondsInput.value || 0));
+        kmSecondsInput.addEventListener('input', () => updateMilePace(kmMinutesInput.value || 0, kmSecondsInput.value));
         
-        mileMinutesInput.addEventListener('input', () => updateKmPace(mileMinutesInput.value, mileSecondsInput.value));
-        mileSecondsInput.addEventListener('input', () => updateKmPace(mileMinutesInput.value, mileSecondsInput.value));
+        mileMinutesInput.addEventListener('input', () => updateKmPace(mileMinutesInput.value, mileSecondsInput.value || 0));
+        mileSecondsInput.addEventListener('input', () => updateKmPace(mileMinutesInput.value || 0, mileSecondsInput.value));
     </script>
 </body>
 </html>
