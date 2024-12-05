@@ -184,74 +184,81 @@
 
         function handleMilePace(kmMinutes, kmSeconds) {
             const kmPace = convertPace(Number(0), Number(kmMinutes), Number(kmSeconds));
-            updateTimes(kmPace);
+            updateTimes(kmPace, "km");
         }
 
         function handleKmPace(mileMinutes, mileSeconds) {
             const milePace = convertPace(Number(0), Number(mileMinutes), Number(mileSeconds));
             const kmPace = milePace / 1.609344;
-            updateTimes(kmPace);
+            updateTimes(kmPace, "mile");
         }
 
         function handle5KPace(fiveKMinutes, fiveKSeconds) {
             const kmPace = convertPace(Number(0), Number(fiveKMinutes), Number(fiveKSeconds))/5;
-            updateTimes(kmPace);
+            updateTimes(kmPace, "5k");
         }
 
         function handleTenKPace(minutes, seconds) {
             const kmPace = convertPace(Number(0), Number(minutes), Number(seconds))/10;
-            updateTimes(kmPace);
+            updateTimes(kmPace, "10k");
         }
 
         function handleHalfMarathonPace(hours, minutes, seconds) {
             const kmPace = convertPace(hours=Number(hours), Number(minutes), Number(seconds))/21.0975;
-            updateTimes(kmPace);
+            updateTimes(kmPace, "hm");
         }
 
         function handleMarathonPace(minutes, seconds) {
             const kmPace = convertPace(Number(minutes), Number(seconds))/42.195;
-            updateTimes(kmPace);
+            updateTimes(kmPace, "marathon");
         }
 
-        function updateTimes(kmPace) {
-            const kmMinutes = Math.floor(kmPace);
-            const kmSeconds = Math.round((kmPace - kmMinutes) * 60);
-            kmMinutesInput.value = kmMinutes;
-            kmSecondsInput.value = kmSeconds;
-            
-            const fiveKPace = kmPace * 5;
-            const fiveKMinutes = Math.floor(fiveKPace);
-            const fiveKSeconds = Math.round((fiveKPace - fiveKMinutes) * 60);
-            fiveKmMinutesInput.value = fiveKMinutes;
-            fiveKmSecondsInput.value = fiveKSeconds;
-
-            const tenKPace = kmPace * 10;
-            const tenKMinutes = Math.floor(tenKPace);
-            const tenKSeconds = Math.round((tenKPace - tenKMinutes) * 60);
-            tenKmMinutesInput.value = tenKMinutes;
-            tenKmSecondsInput.value = tenKSeconds;
-
-            const milePace = kmPace * 1.609344;
-            const mileMinutes = Math.floor(milePace);
-            const mileSeconds = Math.round((milePace - mileMinutes) * 60);
-            mileMinutesInput.value = mileMinutes;
-            mileSecondsInput.value = mileSeconds;
-
-            const halfMarathonPace = kmPace * 21.0975;
-            const halfMarathonHours = Math.floor(halfMarathonPace / 60)
-            const halfMarathonMinutes = Math.floor(halfMarathonPace % 60);
-            const halfMarathonSeconds = Math.round(((halfMarathonPace % 60) - halfMarathonMinutes) * 60);
-            halfMarathonHoursInput.value = halfMarathonHours;
-            halfMarathonMinutesInput.value = halfMarathonMinutes;
-            halfMarathonSecondsInput.value = halfMarathonSeconds;
-            
-            const marathonPace = kmPace * 42.195;
-            const marathonHours = Math.floor(marathonPace / 60)
-            const marathonMinutes = Math.floor(marathonPace % 60);
-            const marathonSeconds = Math.round(((marathonPace % 60) - marathonMinutes) * 60);
-            marathonHoursInput.value = marathonHours;
-            marathonMinutesInput.value = marathonMinutes;
-            marathonSecondsInput.value = marathonSeconds;
+        function updateTimes(kmPace, skip) {
+            if (skip != "km") {
+                const kmMinutes = Math.floor(kmPace);
+                const kmSeconds = Math.round((kmPace - kmMinutes) * 60);
+                kmMinutesInput.value = kmMinutes;
+                kmSecondsInput.value = kmSeconds;
+            }
+            if (skip != "5k") {
+                const fiveKPace = kmPace * 5;
+                const fiveKMinutes = Math.floor(fiveKPace);
+                const fiveKSeconds = Math.round((fiveKPace - fiveKMinutes) * 60);
+                fiveKmMinutesInput.value = fiveKMinutes;
+                fiveKmSecondsInput.value = fiveKSeconds;
+            }
+            if (skip != "10k") {
+                const tenKPace = kmPace * 10;
+                const tenKMinutes = Math.floor(tenKPace);
+                const tenKSeconds = Math.round((tenKPace - tenKMinutes) * 60);
+                tenKmMinutesInput.value = tenKMinutes;
+                tenKmSecondsInput.value = tenKSeconds;
+            }
+            if (skip != "mile") {
+                const milePace = kmPace * 1.609344;
+                const mileMinutes = Math.floor(milePace);
+                const mileSeconds = Math.round((milePace - mileMinutes) * 60);
+                mileMinutesInput.value = mileMinutes;
+                mileSecondsInput.value = mileSeconds;
+            }
+            if (skip != "hm") {
+                const halfMarathonPace = kmPace * 21.0975;
+                const halfMarathonHours = Math.floor(halfMarathonPace / 60)
+                const halfMarathonMinutes = Math.floor(halfMarathonPace % 60);
+                const halfMarathonSeconds = Math.round(((halfMarathonPace % 60) - halfMarathonMinutes) * 60);
+                halfMarathonHoursInput.value = halfMarathonHours;
+                halfMarathonMinutesInput.value = halfMarathonMinutes;
+                halfMarathonSecondsInput.value = halfMarathonSeconds;
+            }
+            if (skip != "marathon") {
+                const marathonPace = kmPace * 42.195;
+                const marathonHours = Math.floor(marathonPace / 60)
+                const marathonMinutes = Math.floor(marathonPace % 60);
+                const marathonSeconds = Math.round(((marathonPace % 60) - marathonMinutes) * 60);
+                marathonHoursInput.value = marathonHours;
+                marathonMinutesInput.value = marathonMinutes;
+                marathonSecondsInput.value = marathonSeconds;
+            }
         }
 
         kmMinutesInput.addEventListener('input', () => handleMilePace(kmMinutesInput.value, kmSecondsInput.value || 0));
