@@ -42,7 +42,7 @@
             </div>
         </div>
 
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-4 mb-4">
             <div class="text-lg font-semibold w-20">min/mi</div>
             <div class="flex items-center gap-2 flex-grow">
                 <input 
@@ -64,6 +64,112 @@
                 />
             </div>
         </div>
+        <div class="flex items-center gap-4 mb-4">
+            <div class="text-lg font-semibold w-20">5K</div>
+            <div class="flex items-center gap-2 flex-grow">
+                <input 
+                    type="number" 
+                    id="fiveKmMinutesInput"
+                    placeholder="min" 
+                    class="input input-bordered flex-grow"
+                    min="0"
+                    max="59"
+                />
+                <span>:</span>
+                <input 
+                    type="number" 
+                    id="fiveKmSecondsInput"
+                    placeholder="sec" 
+                    class="input input-bordered flex-grow"
+                    min="0"
+                    max="59"
+                />
+            </div>
+        </div>
+        <div class="flex items-center gap-4 mb-4">
+            <div class="text-lg font-semibold w-20">10K</div>
+            <div class="flex items-center gap-2 flex-grow">
+                <input 
+                    type="number" 
+                    id="tenKmMinutesInput"
+                    placeholder="min" 
+                    class="input input-bordered flex-grow"
+                    min="0"
+                    max="59"
+                />
+                <span>:</span>
+                <input 
+                    type="number" 
+                    id="tenKmSecondsInput"
+                    placeholder="sec" 
+                    class="input input-bordered flex-grow"
+                    min="0"
+                    max="59"
+                />
+            </div>
+        </div>
+        <div class="flex items-center gap-4 mb-4">
+            <div class="text-lg font-semibold w-20">HM</div>
+            <div class="flex items-center gap-2 flex-grow">
+                <input 
+                    type="number" 
+                    id="halfMarathonHoursInput"
+                    placeholder="hour" 
+                    class="input input-bordered flex-grow"
+                    min="0"
+                    max="59"
+                />
+                <span>:</span>
+                <input 
+                    type="number" 
+                    id="halfMarathonMinutesInput"
+                    placeholder="min" 
+                    class="input input-bordered flex-grow"
+                    min="0"
+                    max="59"
+                />
+                <span>:</span>
+                <input 
+                    type="number" 
+                    id="halfMarathonSecondsInput"
+                    placeholder="sec" 
+                    class="input input-bordered flex-grow"
+                    min="0"
+                    max="59"
+                />
+            </div>
+        </div>
+        <div class="flex items-center gap-4 mb-4">
+            <div class="text-lg font-semibold w-20">Marathon</div>
+            <div class="flex items-center gap-2 flex-grow">
+                <input 
+                    type="number" 
+                    id="marathonHoursInput"
+                    placeholder="hour" 
+                    class="input input-bordered flex-grow"
+                    min="0"
+                    max="59"
+                />
+                <span>:</span>
+                <input 
+                    type="number" 
+                    id="marathonMinutesInput"
+                    placeholder="min" 
+                    class="input input-bordered flex-grow"
+                    min="0"
+                    max="59"
+                />
+                <span>:</span>
+                <input 
+                    type="number" 
+                    id="marathonSecondsInput"
+                    placeholder="sec" 
+                    class="input input-bordered flex-grow"
+                    min="0"
+                    max="59"
+                />
+            </div>
+        </div>
     </div>
     <p class="absolute bottom-4 left-4 text-gray-500 hover:text-gray-700">Built with love and AI in Brooklyn, NYC.</p>
     <a href="https://github.com/felixbouleau/runningconverter-com" target="_blank" class="absolute bottom-4 right-4 text-gray-500 hover:text-gray-700">
@@ -72,40 +178,100 @@
         </svg>
     </a>
     <script>
-        const kmMinutesInput = document.getElementById('kmMinutesInput');
-        const kmSecondsInput = document.getElementById('kmSecondsInput');
-        const mileMinutesInput = document.getElementById('mileMinutesInput');
-        const mileSecondsInput = document.getElementById('mileSecondsInput');
-
-        function convertPace(minutes, seconds) {
-            return minutes + (seconds / 60);
+        function convertPace(hours, minutes, seconds) {
+            return (hours * 60) + minutes + (seconds / 60);
         }
 
-        function updateMilePace(kmMinutes, kmSeconds) {
-            const kmPace = convertPace(Number(kmMinutes), Number(kmSeconds));
+        function handleMilePace(kmMinutes, kmSeconds) {
+            const kmPace = convertPace(Number(0), Number(kmMinutes), Number(kmSeconds));
+            updateTimes(kmPace);
+        }
+
+        function handleKmPace(mileMinutes, mileSeconds) {
+            const milePace = convertPace(Number(0), Number(mileMinutes), Number(mileSeconds));
+            const kmPace = milePace / 1.609344;
+            updateTimes(kmPace);
+        }
+
+        function handle5KPace(fiveKMinutes, fiveKSeconds) {
+            const kmPace = convertPace(Number(0), Number(fiveKMinutes), Number(fiveKSeconds))/5;
+            updateTimes(kmPace);
+        }
+
+        function handleTenKPace(minutes, seconds) {
+            const kmPace = convertPace(Number(0), Number(minutes), Number(seconds))/10;
+            updateTimes(kmPace);
+        }
+
+        function handleHalfMarathonPace(hours, minutes, seconds) {
+            const kmPace = convertPace(hours=Number(hours), Number(minutes), Number(seconds))/21.0975;
+            updateTimes(kmPace);
+        }
+
+        function handleMarathonPace(minutes, seconds) {
+            const kmPace = convertPace(Number(minutes), Number(seconds))/42.195;
+            updateTimes(kmPace);
+        }
+
+        function updateTimes(kmPace) {
+            const kmMinutes = Math.floor(kmPace);
+            const kmSeconds = Math.round((kmPace - kmMinutes) * 60);
+            kmMinutesInput.value = kmMinutes;
+            kmSecondsInput.value = kmSeconds;
+            
+            const fiveKPace = kmPace * 5;
+            const fiveKMinutes = Math.floor(fiveKPace);
+            const fiveKSeconds = Math.round((fiveKPace - fiveKMinutes) * 60);
+            fiveKmMinutesInput.value = fiveKMinutes;
+            fiveKmSecondsInput.value = fiveKSeconds;
+
+            const tenKPace = kmPace * 10;
+            const tenKMinutes = Math.floor(tenKPace);
+            const tenKSeconds = Math.round((tenKPace - tenKMinutes) * 60);
+            tenKmMinutesInput.value = tenKMinutes;
+            tenKmSecondsInput.value = tenKSeconds;
+
             const milePace = kmPace * 1.609344;
             const mileMinutes = Math.floor(milePace);
             const mileSeconds = Math.round((milePace - mileMinutes) * 60);
-
             mileMinutesInput.value = mileMinutes;
             mileSecondsInput.value = mileSeconds;
+
+            const halfMarathonPace = kmPace * 21.0975;
+            const halfMarathonHours = Math.floor(halfMarathonPace / 60)
+            const halfMarathonMinutes = Math.floor(halfMarathonPace % 60);
+            const halfMarathonSeconds = Math.round(((halfMarathonPace % 60) - halfMarathonMinutes) * 60);
+            halfMarathonHoursInput.value = halfMarathonHours;
+            halfMarathonMinutesInput.value = halfMarathonMinutes;
+            halfMarathonSecondsInput.value = halfMarathonSeconds;
+            
+            const marathonPace = kmPace * 42.195;
+            const marathonHours = Math.floor(marathonPace / 60)
+            const marathonMinutes = Math.floor(marathonPace % 60);
+            const marathonSeconds = Math.round(((marathonPace % 60) - marathonMinutes) * 60);
+            marathonHoursInput.value = marathonHours;
+            marathonMinutesInput.value = marathonMinutes;
+            marathonSecondsInput.value = marathonSeconds;
         }
 
-        function updateKmPace(mileMinutes, mileSeconds) {
-            const milePace = convertPace(Number(mileMinutes), Number(mileSeconds));
-            const kmPace = milePace / 1.609344;
-            const kmMinutes = Math.floor(kmPace);
-            const kmSeconds = Math.round((kmPace - kmMinutes) * 60);
-
-            kmMinutesInput.value = kmMinutes;
-            kmSecondsInput.value = kmSeconds;
-        }
-
-        kmMinutesInput.addEventListener('input', () => updateMilePace(kmMinutesInput.value, kmSecondsInput.value || 0));
-        kmSecondsInput.addEventListener('input', () => updateMilePace(kmMinutesInput.value || 0, kmSecondsInput.value));
+        kmMinutesInput.addEventListener('input', () => handleMilePace(kmMinutesInput.value, kmSecondsInput.value || 0));
+        kmSecondsInput.addEventListener('input', () => handleMilePace(kmMinutesInput.value || 0, kmSecondsInput.value));
         
-        mileMinutesInput.addEventListener('input', () => updateKmPace(mileMinutesInput.value, mileSecondsInput.value || 0));
-        mileSecondsInput.addEventListener('input', () => updateKmPace(mileMinutesInput.value || 0, mileSecondsInput.value));
+        mileMinutesInput.addEventListener('input', () => handleKmPace(mileMinutesInput.value, mileSecondsInput.value || 0));
+        mileSecondsInput.addEventListener('input', () => handleKmPace(mileMinutesInput.value || 0, mileSecondsInput.value));
+        
+        fiveKmMinutesInput.addEventListener('input', () => handle5KPace(fiveKmMinutesInput.value, fiveKmSecondsInput.value || 0));
+        fiveKmSecondsInput.addEventListener('input', () => handle5KPace(fiveKmMinutesInput.value || 0, fiveKmSecondsInput.value));
+        
+        tenKmMinutesInput.addEventListener('input', () => handleTenKPace(tenKmMinutesInput.value, tenKmSecondsInput.value || 0));
+        tenKmSecondsInput.addEventListener('input', () => handleTenKPace(tenKmMinutesInput.value || 0, tenKmSecondsInput.value));
+        
+        halfMarathonHoursInput.addEventListener('input',() => handleHalfMarathonPace(halfMarathonHoursInput.value, halfMarathonMinutesInput.value || 0, halfMarathonSecondsInput.value || 0));
+        halfMarathonMinutesInput.addEventListener('input',() => handleHalfMarathonPace(halfMarathonHoursInput.value || 0, halfMarathonMinutesInput.value, halfMarathonSecondsInput.value || 0));
+        halfMarathonSecondsInput.addEventListener('input', () => handleHalfMarathonPace(halfMarathonHoursInput.value || 0, halfMarathonMinutesInput.value || 0, halfMarathonSecondsInput.value));
+        
+        marathonMinutesInput.addEventListener('input', () => handleMarathonPace(marathonMinutesInput.value, marathonSecondsInput.value || 0));
+        marathonSecondsInput.addEventListener('input', () => handleMarathonPace(marathonMinutesInput.value || 0, marathonSecondsInput.value));
     </script>
 </body>
 </html>
