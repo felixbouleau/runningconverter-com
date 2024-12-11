@@ -107,12 +107,12 @@
         }
 
         function handleHalfMarathonPace(hours, minutes, seconds) {
-            const kmPace = convertPace(hours=Number(hours), Number(minutes), Number(seconds))/21.0975;
+            const kmPace = convertPace(Number(hours), Number(minutes), Number(seconds))/21.0975;
             updateTimes(kmPace, "hm");
         }
 
-        function handleMarathonPace(minutes, seconds) {
-            const kmPace = convertPace(Number(minutes), Number(seconds))/42.195;
+        function handleMarathonPace(hours, minutes, seconds) {
+            const kmPace = convertPace(Number(hours), Number(minutes), Number(seconds))/42.195;
             updateTimes(kmPace, "marathon");
         }
 
@@ -180,7 +180,9 @@
         halfMarathonMinutesInput.addEventListener('input',() => handleHalfMarathonPace(halfMarathonHoursInput.value || 0, halfMarathonMinutesInput.value, halfMarathonSecondsInput.value || 0));
         halfMarathonSecondsInput.addEventListener('input', () => handleHalfMarathonPace(halfMarathonHoursInput.value || 0, halfMarathonMinutesInput.value || 0, halfMarathonSecondsInput.value));
         
-        marathonMinutesInput.addEventListener('input', () => handleMarathonPace(marathonMinutesInput.value, marathonSecondsInput.value || 0));
-        marathonSecondsInput.addEventListener('input', () => handleMarathonPace(marathonMinutesInput.value || 0, marathonSecondsInput.value));
+        marathonHoursInput.addEventListener('input',() => handleMarathonPace(marathonHoursInput.value, marathonMinutesInput.value || 0, marathonSecondsInput.value || 0));
+        marathonMinutesInput.addEventListener('input',() => handleMarathonPace(marathonHoursInput.value || 0, marathonMinutesInput.value, marathonSecondsInput.value || 0));
+        marathonSecondsInput.addEventListener('input', () => handleMarathonPace(marathonHoursInput.value || 0, marathonMinutesInput.value || 0, marathonSecondsInput.value));
+
     </script>
 </body>
