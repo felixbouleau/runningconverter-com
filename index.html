@@ -215,13 +215,6 @@
             customKmDistanceInput.value = 5;
             // Calculate and set miles equivalent (approximately 3.1 miles)
             customMiDistanceInput.value = (5 / 1.609344).toFixed(1);
-            
-            // Initialize with some sample pace to show all conversions
-            if (!kmMinutesInput.value && !kmSecondsInput.value) {
-                kmMinutesInput.value = 5;
-                kmSecondsInput.value = 0;
-                handleMilePace(5, 0);
-            }
         });
 
     </script>
