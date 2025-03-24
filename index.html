@@ -37,19 +37,27 @@
             </div>
         </div>
         <div class="flex items-center gap-4 mb-4">
-            <div class="text-lg font-semibold w-14">5K</div>
+            <div class="text-lg font-semibold w-14">Custom</div>
             <div class="flex items-center gap-2 flex-grow">
-                <input type="number" id="fiveKmMinutesInput" placeholder="min" class="input input-bordered flex-grow" min="0" max="59">
-                <span>:</span>
-                <input type="number" id="fiveKmSecondsInput" placeholder="sec" class="input input-bordered flex-grow" min="0" max="59">
+                <input type="number" id="customKmDistanceInput" placeholder="km" class="input input-bordered w-16" min="0" step="0.1" value="5">
+                <span class="text-sm">km</span>
+                <div class="flex items-center gap-2 flex-grow">
+                    <input type="number" id="customKmMinutesInput" placeholder="min" class="input input-bordered flex-grow" min="0" max="59">
+                    <span>:</span>
+                    <input type="number" id="customKmSecondsInput" placeholder="sec" class="input input-bordered flex-grow" min="0" max="59">
+                </div>
             </div>
         </div>
         <div class="flex items-center gap-4 mb-4">
-            <div class="text-lg font-semibold w-14">10K</div>
+            <div class="text-lg font-semibold w-14">Custom</div>
             <div class="flex items-center gap-2 flex-grow">
-                <input type="number" id="tenKmMinutesInput" placeholder="min" class="input input-bordered flex-grow" min="0" max="59">
-                <span>:</span>
-                <input type="number" id="tenKmSecondsInput" placeholder="sec" class="input input-bordered flex-grow" min="0" max="59">
+                <input type="number" id="customMiDistanceInput" placeholder="mi" class="input input-bordered w-16" min="0" step="0.1">
+                <span class="text-sm">mi</span>
+                <div class="flex items-center gap-2 flex-grow">
+                    <input type="number" id="customMiMinutesInput" placeholder="min" class="input input-bordered flex-grow" min="0" max="59">
+                    <span>:</span>
+                    <input type="number" id="customMiSecondsInput" placeholder="sec" class="input input-bordered flex-grow" min="0" max="59">
+                </div>
             </div>
         </div>
         <div class="flex items-center gap-4 mb-4">
@@ -96,14 +104,17 @@
             updateTimes(kmPace, "mile");
         }
 
-        function handle5KPace(fiveKMinutes, fiveKSeconds) {
-            const kmPace = convertPace(Number(0), Number(fiveKMinutes), Number(fiveKSeconds))/5;
-            updateTimes(kmPace, "5k");
+        function handleCustomKmPace(distance, minutes, seconds) {
+            const totalTime = convertPace(Number(0), Number(minutes), Number(seconds));
+            const kmPace = totalTime / Number(distance);
+            updateTimes(kmPace, "customKm");
         }
 
-        function handleTenKPace(minutes, seconds) {
-            const kmPace = convertPace(Number(0), Number(minutes), Number(seconds))/10;
-            updateTimes(kmPace, "10k");
+        function handleCustomMiPace(distance, minutes, seconds) {
+            const totalTime = convertPace(Number(0), Number(minutes), Number(seconds));
+            const miPace = totalTime / Number(distance);
+            const kmPace = miPace / 1.609344;
+            updateTimes(kmPace, "customMi");
         }
 
         function handleHalfMarathonPace(hours, minutes, seconds) {
@@ -123,19 +134,31 @@
                 kmMinutesInput.value = kmMinutes;
                 kmSecondsInput.value = kmSeconds;
             }
-            if (skip != "5k") {
-                const fiveKPace = kmPace * 5;
-                const fiveKMinutes = Math.floor(fiveKPace);
-                const fiveKSeconds = Math.round((fiveKPace - fiveKMinutes) * 60);
-                fiveKmMinutesInput.value = fiveKMinutes;
-                fiveKmSecondsInput.value = fiveKSeconds;
+            if (skip != "customKm") {
+                // Update kilometers distance based on miles if miles was the source of change
+                if (skip === "customMi") {
+                    customKmDistanceInput.value = (Number(customMiDistanceInput.value) * 1.609344).toFixed(1);
+                }
+                
+                const customKmDistance = Number(customKmDistanceInput.value) || 5;
+                const customKmPace = kmPace * customKmDistance;
+                const customKmMinutes = Math.floor(customKmPace);
+                const customKmSeconds = Math.round((customKmPace - customKmMinutes) * 60);
+                customKmMinutesInput.value = customKmMinutes;
+                customKmSecondsInput.value = customKmSeconds;
             }
-            if (skip != "10k") {
-                const tenKPace = kmPace * 10;
-                const tenKMinutes = Math.floor(tenKPace);
-                const tenKSeconds = Math.round((tenKPace - tenKMinutes) * 60);
-                tenKmMinutesInput.value = tenKMinutes;
-                tenKmSecondsInput.value = tenKSeconds;
+            if (skip != "customMi") {
+                // Update miles distance based on kilometers if kilometers was the source of change
+                if (skip === "customKm") {
+                    customMiDistanceInput.value = (Number(customKmDistanceInput.value) / 1.609344).toFixed(1);
+                }
+                
+                const customMiDistance = Number(customMiDistanceInput.value) || 3.1;
+                const customMiPace = kmPace * 1.609344 * customMiDistance;
+                const customMiMinutes = Math.floor(customMiPace);
+                const customMiSeconds = Math.round((customMiPace - customMiMinutes) * 60);
+                customMiMinutesInput.value = customMiMinutes;
+                customMiSecondsInput.value = customMiSeconds;
             }
             if (skip != "mile") {
                 const milePace = kmPace * 1.609344;
@@ -170,11 +193,13 @@
         mileMinutesInput.addEventListener('input', () => handleKmPace(mileMinutesInput.value, mileSecondsInput.value || 0));
         mileSecondsInput.addEventListener('input', () => handleKmPace(mileMinutesInput.value || 0, mileSecondsInput.value));
         
-        fiveKmMinutesInput.addEventListener('input', () => handle5KPace(fiveKmMinutesInput.value, fiveKmSecondsInput.value || 0));
-        fiveKmSecondsInput.addEventListener('input', () => handle5KPace(fiveKmMinutesInput.value || 0, fiveKmSecondsInput.value));
+        customKmDistanceInput.addEventListener('input', () => handleCustomKmPace(customKmDistanceInput.value || 5, customKmMinutesInput.value || 0, customKmSecondsInput.value || 0));
+        customKmMinutesInput.addEventListener('input', () => handleCustomKmPace(customKmDistanceInput.value || 5, customKmMinutesInput.value, customKmSecondsInput.value || 0));
+        customKmSecondsInput.addEventListener('input', () => handleCustomKmPace(customKmDistanceInput.value || 5, customKmMinutesInput.value || 0, customKmSecondsInput.value));
         
-        tenKmMinutesInput.addEventListener('input', () => handleTenKPace(tenKmMinutesInput.value, tenKmSecondsInput.value || 0));
-        tenKmSecondsInput.addEventListener('input', () => handleTenKPace(tenKmMinutesInput.value || 0, tenKmSecondsInput.value));
+        customMiDistanceInput.addEventListener('input', () => handleCustomMiPace(customMiDistanceInput.value || 3.1, customMiMinutesInput.value || 0, customMiSecondsInput.value || 0));
+        customMiMinutesInput.addEventListener('input', () => handleCustomMiPace(customMiDistanceInput.value || 3.1, customMiMinutesInput.value, customMiSecondsInput.value || 0));
+        customMiSecondsInput.addEventListener('input', () => handleCustomMiPace(customMiDistanceInput.value || 3.1, customMiMinutesInput.value || 0, customMiSecondsInput.value));
         
         halfMarathonHoursInput.addEventListener('input',() => handleHalfMarathonPace(halfMarathonHoursInput.value, halfMarathonMinutesInput.value || 0, halfMarathonSecondsInput.value || 0));
         halfMarathonMinutesInput.addEventListener('input',() => handleHalfMarathonPace(halfMarathonHoursInput.value || 0, halfMarathonMinutesInput.value, halfMarathonSecondsInput.value || 0));
@@ -183,6 +208,21 @@
         marathonHoursInput.addEventListener('input',() => handleMarathonPace(marathonHoursInput.value, marathonMinutesInput.value || 0, marathonSecondsInput.value || 0));
         marathonMinutesInput.addEventListener('input',() => handleMarathonPace(marathonHoursInput.value || 0, marathonMinutesInput.value, marathonSecondsInput.value || 0));
         marathonSecondsInput.addEventListener('input', () => handleMarathonPace(marathonHoursInput.value || 0, marathonMinutesInput.value || 0, marathonSecondsInput.value));
+
+        // Initialize with default values
+        window.addEventListener('DOMContentLoaded', () => {
+            // Set default distance for custom km input to 5km
+            customKmDistanceInput.value = 5;
+            // Calculate and set miles equivalent (approximately 3.1 miles)
+            customMiDistanceInput.value = (5 / 1.609344).toFixed(1);
+            
+            // Initialize with some sample pace to show all conversions
+            if (!kmMinutesInput.value && !kmSecondsInput.value) {
+                kmMinutesInput.value = 5;
+                kmSecondsInput.value = 0;
+                handleMilePace(5, 0);
+            }
+        });
 
     </script>
 </body>
