@@ -87,165 +87,256 @@
       </a>
     </div>
     <script>
-        function convertPace(hours, minutes, seconds) {
-            return (hours * 60) + minutes + (seconds / 60);
+        // Utility function to convert time parts to minutes
+        function convertToMinutes(hours = 0, minutes = 0, seconds = 0) {
+            return (Number(hours) * 60) + Number(minutes) + (Number(seconds) / 60);
         }
 
-        function handleMilePace(kmMinutes, kmSeconds) {
-            const kmPace = convertPace(Number(0), Number(kmMinutes), Number(kmSeconds));
-            updateTimes(kmPace, "km");
+        // Store the current pace in min/km for calculations
+        let currentKmPace = 0;
+        let lastUpdateSource = "";
+
+        // Convert between min/km and min/mile
+        const KM_TO_MILE_FACTOR = 1.609344;
+
+        // Convert time to formatted parts (hours, minutes, seconds)
+        function formatTime(totalMinutes) {
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = Math.floor(totalMinutes % 60);
+            const seconds = Math.round(((totalMinutes % 60) - minutes) * 60);
+            return { hours, minutes, seconds };
         }
 
-        function handleKmPace(mileMinutes, mileSeconds) {
-            const milePace = convertPace(Number(0), Number(mileMinutes), Number(mileSeconds));
-            const kmPace = milePace / 1.609344;
-            updateTimes(kmPace, "mile");
-        }
-
-        function handleCustomKmPace(distance, minutes, seconds, isDistanceChange = false) {
-            const totalTime = convertPace(Number(0), Number(minutes), Number(seconds));
-            const kmPace = totalTime / Number(distance);
-            updateTimes(kmPace, isDistanceChange ? "customKm" : "customKmTime");
-        }
-
-        function handleCustomMiPace(distance, minutes, seconds, isDistanceChange = false) {
-            const totalTime = convertPace(Number(0), Number(minutes), Number(seconds));
-            const miPace = totalTime / Number(distance);
-            const kmPace = miPace / 1.609344;
-            updateTimes(kmPace, isDistanceChange ? "customMi" : "customMiTime");
-        }
-
-        function handleHalfMarathonPace(hours, minutes, seconds) {
-            const kmPace = convertPace(Number(hours), Number(minutes), Number(seconds))/21.0975;
-            updateTimes(kmPace, "hm");
-        }
-
-        function handleMarathonPace(hours, minutes, seconds) {
-            const kmPace = convertPace(Number(hours), Number(minutes), Number(seconds))/42.195;
-            updateTimes(kmPace, "marathon");
-        }
-
-        function updateTimes(kmPace, skip) {
-            // Check if this update was triggered by a distance field change
-            const isDistanceChange = skip === "customKm" || skip === "customMi";
+        // Main update function that updates all fields based on the current pace
+        function updateAllFields(sourceId) {
+            lastUpdateSource = sourceId;
             
-            if (skip != "km") {
-                const kmMinutes = Math.floor(kmPace);
-                const kmSeconds = Math.round((kmPace - kmMinutes) * 60);
+            // Check if we have a valid pace before updating fields
+            if (currentKmPace <= 0) {
+                // If there's no valid pace yet, don't update any fields
+                // except the distance conversion if that's what triggered the update
                 
-                // Only update if not a distance change or if fields already have values
-                if (!isDistanceChange || kmMinutesInput.value !== "" || kmSecondsInput.value !== "") {
-                    kmMinutesInput.value = kmMinutes;
-                    kmSecondsInput.value = kmSeconds;
+                // Special case for handling distance conversions when no pace is set
+                if (sourceId === "customKmDistance") {
+                    const kmDistance = Number(customKmDistanceInput.value) || 5;
+                    customMiDistanceInput.value = (kmDistance / KM_TO_MILE_FACTOR).toFixed(1);
+                    return;
+                } else if (sourceId === "customMiDistance") {
+                    const miDistance = Number(customMiDistanceInput.value) || 3.1;
+                    customKmDistanceInput.value = (miDistance * KM_TO_MILE_FACTOR).toFixed(1);
+                    return;
+                } else {
+                    return;
                 }
             }
             
-            if (skip != "customKm") {
-                // Update kilometers distance based on miles if miles was the source of change
-                if (skip === "customMi") {
-                    customKmDistanceInput.value = (Number(customMiDistanceInput.value) * 1.609344).toFixed(1);
-                }
-                
+            // Never update pace fields when changing distance fields
+            const isDistanceChange = sourceId === "customKmDistance" || sourceId === "customMiDistance";
+            
+            // Skip updating the source field that triggered this update
+            if (sourceId !== "kmPace" && !isDistanceChange) {
+                // Update min/km pace
+                const { minutes: kmMinutes, seconds: kmSeconds } = formatTime(currentKmPace);
+                kmMinutesInput.value = kmMinutes;
+                kmSecondsInput.value = kmSeconds;
+            }
+
+            if (sourceId !== "milePace" && !isDistanceChange) {
+                // Update min/mile pace
+                const milePace = currentKmPace * KM_TO_MILE_FACTOR;
+                const { minutes: mileMinutes, seconds: mileSeconds } = formatTime(milePace);
+                mileMinutesInput.value = mileMinutes;
+                mileSecondsInput.value = mileSeconds;
+            }
+
+            // Update custom distance fields
+            if (sourceId !== "customKmTime" && sourceId !== "customKmDistance") {
                 const customKmDistance = Number(customKmDistanceInput.value) || 5;
-                const customKmPace = kmPace * customKmDistance;
-                const customKmMinutes = Math.floor(customKmPace);
-                const customKmSeconds = Math.round((customKmPace - customKmMinutes) * 60);
-                
-                // Only update time fields if not a distance change or if fields already have values
-                if (!isDistanceChange || customKmMinutesInput.value !== "" || customKmSecondsInput.value !== "") {
-                    customKmMinutesInput.value = customKmMinutes;
-                    customKmSecondsInput.value = customKmSeconds;
-                }
+                const customKmTime = currentKmPace * customKmDistance;
+                const { minutes: customKmMinutes, seconds: customKmSeconds } = formatTime(customKmTime);
+                customKmMinutesInput.value = customKmMinutes;
+                customKmSecondsInput.value = customKmSeconds;
             }
-            
-            if (skip != "customMi") {
-                // Update miles distance based on kilometers if kilometers was the source of change
-                if (skip === "customKm") {
-                    customMiDistanceInput.value = (Number(customKmDistanceInput.value) / 1.609344).toFixed(1);
-                }
-                
+
+            if (sourceId !== "customMiTime" && sourceId !== "customMiDistance") {
                 const customMiDistance = Number(customMiDistanceInput.value) || 3.1;
-                const customMiPace = kmPace * 1.609344 * customMiDistance;
-                const customMiMinutes = Math.floor(customMiPace);
-                const customMiSeconds = Math.round((customMiPace - customMiMinutes) * 60);
-                
-                // Only update time fields if not a distance change or if fields already have values
-                if (!isDistanceChange || customMiMinutesInput.value !== "" || customMiSecondsInput.value !== "") {
-                    customMiMinutesInput.value = customMiMinutes;
-                    customMiSecondsInput.value = customMiSeconds;
-                }
+                const customMiTime = currentKmPace * KM_TO_MILE_FACTOR * customMiDistance;
+                const { minutes: customMiMinutes, seconds: customMiSeconds } = formatTime(customMiTime);
+                customMiMinutesInput.value = customMiMinutes;
+                customMiSecondsInput.value = customMiSeconds;
             }
-            
-            if (skip != "mile") {
-                const milePace = kmPace * 1.609344;
-                const mileMinutes = Math.floor(milePace);
-                const mileSeconds = Math.round((milePace - mileMinutes) * 60);
-                
-                // Only update if not a distance change or if fields already have values
-                if (!isDistanceChange || mileMinutesInput.value !== "" || mileSecondsInput.value !== "") {
-                    mileMinutesInput.value = mileMinutes;
-                    mileSecondsInput.value = mileSeconds;
-                }
+
+            if (sourceId !== "halfMarathon" && !isDistanceChange) {
+                // Update half marathon time
+                const halfMarathonDistance = 21.0975; // km
+                const halfMarathonTime = currentKmPace * halfMarathonDistance;
+                const { hours, minutes, seconds } = formatTime(halfMarathonTime);
+                halfMarathonHoursInput.value = hours;
+                halfMarathonMinutesInput.value = minutes;
+                halfMarathonSecondsInput.value = seconds;
             }
-            
-            if (skip != "hm") {
-                const halfMarathonPace = kmPace * 21.0975;
-                const halfMarathonHours = Math.floor(halfMarathonPace / 60)
-                const halfMarathonMinutes = Math.floor(halfMarathonPace % 60);
-                const halfMarathonSeconds = Math.round(((halfMarathonPace % 60) - halfMarathonMinutes) * 60);
-                
-                // Only update if not a distance change or if fields already have values
-                if (!isDistanceChange || halfMarathonHoursInput.value !== "" || halfMarathonMinutesInput.value !== "" || halfMarathonSecondsInput.value !== "") {
-                    halfMarathonHoursInput.value = halfMarathonHours;
-                    halfMarathonMinutesInput.value = halfMarathonMinutes;
-                    halfMarathonSecondsInput.value = halfMarathonSeconds;
-                }
-            }
-            
-            if (skip != "marathon") {
-                const marathonPace = kmPace * 42.195;
-                const marathonHours = Math.floor(marathonPace / 60)
-                const marathonMinutes = Math.floor(marathonPace % 60);
-                const marathonSeconds = Math.round(((marathonPace % 60) - marathonMinutes) * 60);
-                
-                // Only update if not a distance change or if fields already have values
-                if (!isDistanceChange || marathonHoursInput.value !== "" || marathonMinutesInput.value !== "" || marathonSecondsInput.value !== "") {
-                    marathonHoursInput.value = marathonHours;
-                    marathonMinutesInput.value = marathonMinutes;
-                    marathonSecondsInput.value = marathonSeconds;
-                }
+
+            if (sourceId !== "marathon" && !isDistanceChange) {
+                // Update marathon time
+                const marathonDistance = 42.195; // km
+                const marathonTime = currentKmPace * marathonDistance;
+                const { hours, minutes, seconds } = formatTime(marathonTime);
+                marathonHoursInput.value = hours;
+                marathonMinutesInput.value = minutes;
+                marathonSecondsInput.value = seconds;
             }
         }
 
-        kmMinutesInput.addEventListener('input', () => handleMilePace(kmMinutesInput.value, kmSecondsInput.value || 0));
-        kmSecondsInput.addEventListener('input', () => handleMilePace(kmMinutesInput.value || 0, kmSecondsInput.value));
+        // Event handlers for each input type
+
+        // Min/km pace changes
+        function handleKmPaceChange() {
+            const kmMinutes = kmMinutesInput.value || 0;
+            const kmSeconds = kmSecondsInput.value || 0;
+            
+            if (kmMinutes > 0 || kmSeconds > 0) {
+                currentKmPace = convertToMinutes(0, kmMinutes, kmSeconds);
+                updateAllFields("kmPace");
+            }
+        }
+
+        // Min/mile pace changes
+        function handleMilePaceChange() {
+            const mileMinutes = mileMinutesInput.value || 0;
+            const mileSeconds = mileSecondsInput.value || 0;
+            
+            if (mileMinutes > 0 || mileSeconds > 0) {
+                const milePace = convertToMinutes(0, mileMinutes, mileSeconds);
+                currentKmPace = milePace / KM_TO_MILE_FACTOR;
+                updateAllFields("milePace");
+            }
+        }
+
+        // Custom distance fields
+        function handleCustomKmDistanceChange() {
+            // Only update the equivalent miles distance
+            const kmDistance = Number(customKmDistanceInput.value) || 5;
+            customMiDistanceInput.value = (kmDistance / KM_TO_MILE_FACTOR).toFixed(1);
+            
+            // Update the custom km time field if we have a valid pace
+            if (currentKmPace > 0) {
+                const customKmTime = currentKmPace * kmDistance;
+                const { minutes, seconds } = formatTime(customKmTime);
+                customKmMinutesInput.value = minutes;
+                customKmSecondsInput.value = seconds;
+                
+                // Also update the miles time with the new distance
+                const miDistance = Number(customMiDistanceInput.value) || 3.1;
+                const customMiTime = currentKmPace * KM_TO_MILE_FACTOR * miDistance;
+                const miTime = formatTime(customMiTime);
+                customMiMinutesInput.value = miTime.minutes;
+                customMiSecondsInput.value = miTime.seconds;
+            }
+        }
+
+        function handleCustomKmTimeChange() {
+            // When time changes, calculate a new pace from the time and distance
+            const minutes = customKmMinutesInput.value || 0;
+            const seconds = customKmSecondsInput.value || 0;
+            const distance = customKmDistanceInput.value || 5;
+            
+            if ((minutes > 0 || seconds > 0) && distance > 0) {
+                const totalTime = convertToMinutes(0, minutes, seconds);
+                currentKmPace = totalTime / distance;
+                updateAllFields("customKmTime");
+            }
+        }
+
+        function handleCustomMiDistanceChange() {
+            // Only update the equivalent kilometers distance
+            const miDistance = Number(customMiDistanceInput.value) || 3.1;
+            customKmDistanceInput.value = (miDistance * KM_TO_MILE_FACTOR).toFixed(1);
+            
+            // Update the custom mi time field if we have a valid pace
+            if (currentKmPace > 0) {
+                const customMiTime = currentKmPace * KM_TO_MILE_FACTOR * miDistance;
+                const { minutes, seconds } = formatTime(customMiTime);
+                customMiMinutesInput.value = minutes;
+                customMiSecondsInput.value = seconds;
+                
+                // Also update the km time with the new distance
+                const kmDistance = Number(customKmDistanceInput.value) || 5;
+                const customKmTime = currentKmPace * kmDistance;
+                const kmTime = formatTime(customKmTime);
+                customKmMinutesInput.value = kmTime.minutes;
+                customKmSecondsInput.value = kmTime.seconds;
+            }
+        }
+
+        function handleCustomMiTimeChange() {
+            // When time changes, calculate a new pace from the time and distance
+            const minutes = customMiMinutesInput.value || 0;
+            const seconds = customMiSecondsInput.value || 0;
+            const distance = customMiDistanceInput.value || 3.1;
+            
+            if ((minutes > 0 || seconds > 0) && distance > 0) {
+                const totalTime = convertToMinutes(0, minutes, seconds);
+                const milePace = totalTime / distance;
+                currentKmPace = milePace / KM_TO_MILE_FACTOR;
+                updateAllFields("customMiTime");
+            }
+        }
+
+        // Half Marathon and Marathon time changes
+        function handleHalfMarathonChange() {
+            const hours = halfMarathonHoursInput.value || 0;
+            const minutes = halfMarathonMinutesInput.value || 0;
+            const seconds = halfMarathonSecondsInput.value || 0;
+            
+            if (hours > 0 || minutes > 0 || seconds > 0) {
+                const totalTime = convertToMinutes(hours, minutes, seconds);
+                currentKmPace = totalTime / 21.0975;
+                updateAllFields("halfMarathon");
+            }
+        }
+
+        function handleMarathonChange() {
+            const hours = marathonHoursInput.value || 0;
+            const minutes = marathonMinutesInput.value || 0;
+            const seconds = marathonSecondsInput.value || 0;
+            
+            if (hours > 0 || minutes > 0 || seconds > 0) {
+                const totalTime = convertToMinutes(hours, minutes, seconds);
+                currentKmPace = totalTime / 42.195;
+                updateAllFields("marathon");
+            }
+        }
+
+        // Add event listeners
+        kmMinutesInput.addEventListener('input', handleKmPaceChange);
+        kmSecondsInput.addEventListener('input', handleKmPaceChange);
         
-        mileMinutesInput.addEventListener('input', () => handleKmPace(mileMinutesInput.value, mileSecondsInput.value || 0));
-        mileSecondsInput.addEventListener('input', () => handleKmPace(mileMinutesInput.value || 0, mileSecondsInput.value));
+        mileMinutesInput.addEventListener('input', handleMilePaceChange);
+        mileSecondsInput.addEventListener('input', handleMilePaceChange);
         
-        customKmDistanceInput.addEventListener('input', () => handleCustomKmPace(customKmDistanceInput.value || 5, customKmMinutesInput.value || 0, customKmSecondsInput.value || 0, true));
-        customKmMinutesInput.addEventListener('input', () => handleCustomKmPace(customKmDistanceInput.value || 5, customKmMinutesInput.value, customKmSecondsInput.value || 0, false));
-        customKmSecondsInput.addEventListener('input', () => handleCustomKmPace(customKmDistanceInput.value || 5, customKmMinutesInput.value || 0, customKmSecondsInput.value, false));
+        customKmDistanceInput.addEventListener('input', handleCustomKmDistanceChange);
+        customKmMinutesInput.addEventListener('input', handleCustomKmTimeChange);
+        customKmSecondsInput.addEventListener('input', handleCustomKmTimeChange);
         
-        customMiDistanceInput.addEventListener('input', () => handleCustomMiPace(customMiDistanceInput.value || 3.1, customMiMinutesInput.value || 0, customMiSecondsInput.value || 0, true));
-        customMiMinutesInput.addEventListener('input', () => handleCustomMiPace(customMiDistanceInput.value || 3.1, customMiMinutesInput.value, customMiSecondsInput.value || 0, false));
-        customMiSecondsInput.addEventListener('input', () => handleCustomMiPace(customMiDistanceInput.value || 3.1, customMiMinutesInput.value || 0, customMiSecondsInput.value, false));
+        customMiDistanceInput.addEventListener('input', handleCustomMiDistanceChange);
+        customMiMinutesInput.addEventListener('input', handleCustomMiTimeChange);
+        customMiSecondsInput.addEventListener('input', handleCustomMiTimeChange);
         
-        halfMarathonHoursInput.addEventListener('input',() => handleHalfMarathonPace(halfMarathonHoursInput.value, halfMarathonMinutesInput.value || 0, halfMarathonSecondsInput.value || 0));
-        halfMarathonMinutesInput.addEventListener('input',() => handleHalfMarathonPace(halfMarathonHoursInput.value || 0, halfMarathonMinutesInput.value, halfMarathonSecondsInput.value || 0));
-        halfMarathonSecondsInput.addEventListener('input', () => handleHalfMarathonPace(halfMarathonHoursInput.value || 0, halfMarathonMinutesInput.value || 0, halfMarathonSecondsInput.value));
+        halfMarathonHoursInput.addEventListener('input', handleHalfMarathonChange);
+        halfMarathonMinutesInput.addEventListener('input', handleHalfMarathonChange);
+        halfMarathonSecondsInput.addEventListener('input', handleHalfMarathonChange);
         
-        marathonHoursInput.addEventListener('input',() => handleMarathonPace(marathonHoursInput.value, marathonMinutesInput.value || 0, marathonSecondsInput.value || 0));
-        marathonMinutesInput.addEventListener('input',() => handleMarathonPace(marathonHoursInput.value || 0, marathonMinutesInput.value, marathonSecondsInput.value || 0));
-        marathonSecondsInput.addEventListener('input', () => handleMarathonPace(marathonHoursInput.value || 0, marathonMinutesInput.value || 0, marathonSecondsInput.value));
+        marathonHoursInput.addEventListener('input', handleMarathonChange);
+        marathonMinutesInput.addEventListener('input', handleMarathonChange);
+        marathonSecondsInput.addEventListener('input', handleMarathonChange);
 
         // Initialize with default values
         window.addEventListener('DOMContentLoaded', () => {
             // Set default distance for custom km input to 5km
             customKmDistanceInput.value = 5;
             // Calculate and set miles equivalent (approximately 3.1 miles)
-            customMiDistanceInput.value = (5 / 1.609344).toFixed(1);
+            customMiDistanceInput.value = (5 / KM_TO_MILE_FACTOR).toFixed(1);
         });
-
     </script>
 </body>
+</html>
