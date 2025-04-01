@@ -39,7 +39,7 @@
         </div>
         <div class="flex items-center gap-4 mb-4">
             <div class="flex items-center w-20">
-                <input type="number" id="customKmDistanceInput" placeholder="km" class="input input-bordered w-14" min="0" step="0.1" value="5">
+                <input type="text" id="customKmDistanceInput" placeholder="km" class="input input-bordered w-14" value="5" inputmode="decimal">
                 <span class="text-xs ml-1">km</span>
             </div>
             <div class="flex items-center gap-2 flex-grow">
@@ -50,7 +50,7 @@
         </div>
         <div class="flex items-center gap-4 mb-4">
             <div class="flex items-center w-20">
-                <input type="number" id="customMiDistanceInput" placeholder="mi" class="input input-bordered w-14" min="0" step="0.1">
+                <input type="text" id="customMiDistanceInput" placeholder="mi" class="input input-bordered w-14" inputmode="decimal">
                 <span class="text-xs ml-1">mi</span>
             </div>
             <div class="flex items-center gap-2 flex-grow">
@@ -215,8 +215,18 @@
 
         // Custom distance fields
         function handleCustomKmDistanceChange() {
+            // Ensure input contains only valid numeric values
+            let value = customKmDistanceInput.value;
+            // Replace any non-numeric values except for decimal point
+            value = value.replace(/[^\d.]/g, '');
+            // Ensure only one decimal point
+            if ((value.match(/\./g) || []).length > 1) {
+                value = value.replace(/\.(?=.*\.)/g, '');
+            }
+            customKmDistanceInput.value = value;
+            
             // Only update the equivalent miles distance
-            const kmDistance = Number(customKmDistanceInput.value) || 5;
+            const kmDistance = Number(value) || 5;
             customMiDistanceInput.value = (kmDistance / KM_TO_MILE_FACTOR).toFixed(1);
             
             // Update the custom km time field if we have a valid pace
@@ -249,8 +259,18 @@
         }
 
         function handleCustomMiDistanceChange() {
+            // Ensure input contains only valid numeric values
+            let value = customMiDistanceInput.value;
+            // Replace any non-numeric values except for decimal point
+            value = value.replace(/[^\d.]/g, '');
+            // Ensure only one decimal point
+            if ((value.match(/\./g) || []).length > 1) {
+                value = value.replace(/\.(?=.*\.)/g, '');
+            }
+            customMiDistanceInput.value = value;
+            
             // Only update the equivalent kilometers distance
-            const miDistance = Number(customMiDistanceInput.value) || 3.1;
+            const miDistance = Number(value) || 3.1;
             customKmDistanceInput.value = (miDistance * KM_TO_MILE_FACTOR).toFixed(1);
             
             // Update the custom mi time field if we have a valid pace
@@ -334,7 +354,7 @@
         // Initialize with default values
         window.addEventListener('DOMContentLoaded', () => {
             // Set default distance for custom km input to 5km
-            customKmDistanceInput.value = 5;
+            customKmDistanceInput.value = "5";
             // Calculate and set miles equivalent (approximately 3.1 miles)
             customMiDistanceInput.value = (5 / KM_TO_MILE_FACTOR).toFixed(1);
         });
